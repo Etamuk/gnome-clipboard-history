@@ -190,6 +190,7 @@ const ClipboardIndicator = Lang.Class({
           that._addEntry(buffer['contents'], buffer['favorite']);
         }
       });
+      that._updateCounts();
 
       // Add separator
       that.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -272,8 +273,13 @@ const ClipboardIndicator = Lang.Class({
     );
     menuItem._onMenuItemSelected = this._onMenuItemSelected;
 
+    menuItem.countLabel = new St.Label({
+      style_class: 'count-label',
+      text: '  ',
+    });
+    menuItem.actor.insert_child_at_index(menuItem.countLabel, 1);
+
     this._setEntryLabel(menuItem);
-    this.clipItemsRadioGroup.push(menuItem);
 
     // Favorite button
     const icon_name = favorite ? 'starred-symbolic' : 'non-starred-symbolic';
@@ -327,6 +333,7 @@ const ClipboardIndicator = Lang.Class({
     if (favorite) {
       this.favoritesSection.addMenuItem(menuItem, 0);
     } else {
+      this.clipItemsRadioGroup.push(menuItem);
       this.historySection.addMenuItem(menuItem, 0);
     }
 
@@ -420,6 +427,22 @@ const ClipboardIndicator = Lang.Class({
     this._updateCache();
   },
 
+  _selectMenuItem: function (menuItem, autoSet) {
+    const fn = Lang.bind(menuItem, this._onMenuItemSelected);
+    fn(autoSet);
+    if (TOPBAR_DISPLAY_MODE === 1 || TOPBAR_DISPLAY_MODE === 2) {
+      this._updateButtonText(menuItem.label.text);
+    }
+  },
+
+  _updateCounts: function () {
+    let i = 0;
+    this.clipItemsRadioGroup.forEach((item) => {
+      item.countLabel.set_text(i + '.');
+      i++;
+    });
+  },
+
   _onMenuItemSelected: function (autoSet) {
     const that = this;
     that.radioGroup.forEach(function (menuItem) {
@@ -436,14 +459,6 @@ const ClipboardIndicator = Lang.Class({
         menuItem.currentlySelected = false;
       }
     });
-  },
-
-  _selectMenuItem: function (menuItem, autoSet) {
-    const fn = Lang.bind(menuItem, this._onMenuItemSelected);
-    fn(autoSet);
-    if (TOPBAR_DISPLAY_MODE === 1 || TOPBAR_DISPLAY_MODE === 2) {
-      this._updateButtonText(menuItem.label.text);
-    }
   },
 
   _onMenuItemSelectedAndMenuClose: function (autoSet) {
