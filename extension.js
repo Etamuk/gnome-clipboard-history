@@ -101,6 +101,7 @@ const ClipboardIndicator = Lang.Class({
 
     this._setupListener();
   },
+
   _updateButtonText: function (content) {
     if (!content || PRIVATEMODE) {
       this._buttonText.set_text('...');
@@ -144,16 +145,10 @@ const ClipboardIndicator = Lang.Class({
       that.menu.connect(
         'open-state-changed',
         Lang.bind(this, function (self, open) {
-          const a = Mainloop.timeout_add(
-            50,
-            Lang.bind(this, function () {
-              if (open) {
-                that.searchEntry.set_text('');
-                global.stage.set_key_focus(that.searchEntry);
-              }
-              Mainloop.source_remove(a);
-            }),
-          );
+          if (open) {
+            global.stage.set_key_focus(that.searchEntry);
+            that.searchEntry.set_text('');
+          }
         }),
       );
 
