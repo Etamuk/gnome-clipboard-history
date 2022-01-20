@@ -384,7 +384,6 @@ const ClipboardIndicator = Lang.Class({
     this.clipItemsRadioGroup = [];
 
     this._updateCache();
-    this._showNotification(_('Clipboard history cleared'));
   },
 
   _removeAll: function () {
